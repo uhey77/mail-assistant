@@ -1,0 +1,34 @@
+"""JSONファイルの読み書き。"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+type JsonObject = dict[str, Any]
+
+
+def load_json_object(path: Path) -> JsonObject:
+    """JSONオブジェクトを読み込み、利用者向けのエラーへ変換する。"""
+    if not path.exists():
+        raise FileNotFoundError(f"ファイルが見つかりません: {path}")
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"JSONを解析できません: {path}") from exc
+
+    if not isinstance(data, dict):
+        raise ValueError(f"JSONのルートがオブジェクトではありません: {path}")
+
+    return data
+
+
+def write_json_object(path: Path, data: JsonObject) -> None:
+    """親ディレクトリを作成してJSONオブジェクトを保存する。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )

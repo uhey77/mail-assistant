@@ -1,0 +1,13 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+model = "gpt-5.3-codex-spark"
+
+# メールの4分類なら低〜中程度で十分
+model_reasoning_effort = "low"
+
+approval_policy = "never"
+sandbox_mode = "read-only"
+web_search = "disabled"
+
+[shell_environment_policy]
+include_only = ["PATH", "HOME", "TMPDIR", "LANG", "LC_ALL"]

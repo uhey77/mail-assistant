@@ -1,0 +1,91 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EmailClassificationResult",
+    "type": "object",
+    "properties": {
+        "classifications": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+            "gmail_message_id": {
+                "type": "string",
+                "minLength": 1
+            },
+            "account": {
+                "type": "string",
+                "enum": [
+                "personal",
+                "university",
+                "job"
+                ]
+            },
+            "category": {
+                "type": "string",
+                "enum": [
+                "reply",
+                "action",
+                "see",
+                "skip"
+                ]
+            },
+            "priority": {
+                "type": "string",
+                "enum": [
+                "high",
+                "medium",
+                "low"
+                ]
+            },
+            "deadline": {
+                "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+                ]
+            },
+            "summary": {
+                "type": "string",
+                "minLength": 1
+            },
+            "required_action": {
+                "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+                ]
+            },
+            "reason": {
+                "type": "string",
+                "minLength": 1
+            },
+            "needs_review": {
+                "type": "boolean"
+            }
+            },
+            "required": [
+            "gmail_message_id",
+            "account",
+            "category",
+            "priority",
+            "deadline",
+            "summary",
+            "required_action",
+            "reason",
+            "needs_review"
+            ],
+            "additionalProperties": false
+        }
+        }
+    },
+    "required": [
+        "classifications"
+    ],
+    "additionalProperties": false
+}

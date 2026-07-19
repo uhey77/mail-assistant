@@ -1,0 +1,62 @@
+[project]
+name = "mail-assistant"
+version = "0.1.0"
+description = "Gmailの未読メールを分類してSlackへ通知するローカルアシスタント"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-api-python-client>=2.198.0",
+    "google-auth-httplib2>=0.4.0",
+    "google-auth-oauthlib>=1.4.0",
+    "python-dotenv>=1.2.2",
+    "requests>=2.34.2",
+]
+
+[project.scripts]
+mail-assistant = "mail_assistant.cli.pipeline:main"
+mail-assistant-auth = "mail_assistant.cli.auth_gmail:main"
+mail-assistant-fetch = "mail_assistant.cli.fetch_email_bodies:main"
+mail-assistant-classify = "mail_assistant.cli.classify:main"
+mail-assistant-notify = "mail_assistant.cli.notify_slack:main"
+mail-assistant-state = "mail_assistant.cli.show_state:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.11.13",
+    "ty>=0.0.1a6",
+]
+
+[build-system]
+requires = ["uv-build>=0.10.2,<0.11"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"auth_gmail.py" = ["F401"]
+"classify_with_codex.py" = ["F401"]
+"fetch_email_bodies.py" = ["F401"]
+"fetch_emails.py" = ["F401"]
+"notify_slack.py" = ["F401"]
+"run_mail_pipeline.py" = ["F401"]
+"show_state.py" = ["F401"]
+"tests/**" = ["S101"]
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.src]
+include = ["mail_assistant", "tests"]
