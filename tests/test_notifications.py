@@ -66,6 +66,44 @@ def test_filter_classifications_excludes_github_pull_request_email():
     ) == [non_github_pr]
 
 
+def test_filter_classifications_excludes_noreply_senders():
+    classifications = [
+        CLASSIFICATION,
+        {**CLASSIFICATION, "gmail_message_id": "m2"},
+        {**CLASSIFICATION, "gmail_message_id": "m3"},
+    ]
+    email_index = build_email_index(
+        {
+            "emails": [
+                {
+                    "gmail_message_id": "m1",
+                    "account": "personal",
+                    "subject": "自動通知",
+                    "from": "Service <noreply@example.com>",
+                },
+                {
+                    "gmail_message_id": "m2",
+                    "account": "personal",
+                    "subject": "自動通知",
+                    "from": "Service <no-reply@example.org>",
+                },
+                {
+                    "gmail_message_id": "m3",
+                    "account": "personal",
+                    "subject": "返信依頼",
+                    "from": "担当者 <reply@example.com>",
+                },
+            ]
+        }
+    )
+
+    assert filter_classifications(
+        {"classifications": classifications},
+        include_skip=False,
+        email_index=email_index,
+    ) == [classifications[2]]
+
+
 def test_build_notification_text_joins_email_metadata():
     emails = {
         "emails": [

@@ -22,6 +22,7 @@ GITHUB_PR_SUBJECT_PATTERN = re.compile(
     r"(?:\(\s*PR\s+#\d+\s*\)|\bpull request\b[^\r\n]*#\d+)",
     re.IGNORECASE,
 )
+NO_REPLY_LOCAL_PARTS = frozenset({"noreply", "no-reply"})
 
 
 def build_email_index(
@@ -54,6 +55,15 @@ def is_github_pull_request_email(email_data: dict[str, Any] | None) -> bool:
     return bool(GITHUB_PR_SUBJECT_PATTERN.search(subject))
 
 
+def is_no_reply_email(email_data: dict[str, Any] | None) -> bool:
+    """送信元がnoreplyまたはno-replyのメールかを判定する。"""
+    if not email_data:
+        return False
+    _, sender_address = parseaddr(str(email_data.get("from") or ""))
+    local_part, separator, _ = sender_address.lower().partition("@")
+    return bool(separator) and local_part in NO_REPLY_LOCAL_PARTS
+
+
 def filter_classifications(
     classifications_data: dict[str, Any],
     *,
@@ -75,10 +85,12 @@ def filter_classifications(
             str(item.get("account", "")),
             str(item.get("gmail_message_id", "")),
         )
-        if email_index is not None and is_github_pull_request_email(
-            email_index.get(key)
-        ):
-            continue
+        if email_index is not None:
+            email_data = email_index.get(key)
+            if is_github_pull_request_email(email_data) or is_no_reply_email(
+                email_data
+            ):
+                continue
         filtered.append(item)
     return filtered
 
