@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import UTC, datetime
+from email.utils import parseaddr
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +18,10 @@ CATEGORY_LABELS = {
     "skip": "通知不要",
 }
 PRIORITY_LABELS = {"high": "高", "medium": "中", "low": "低"}
+GITHUB_PR_SUBJECT_PATTERN = re.compile(
+    r"(?:\(\s*PR\s+#\d+\s*\)|\bpull request\b[^\r\n]*#\d+)",
+    re.IGNORECASE,
+)
 
 
 def build_email_index(
@@ -36,8 +42,23 @@ def build_email_index(
     return index
 
 
+def is_github_pull_request_email(email_data: dict[str, Any] | None) -> bool:
+    """GitHubから届いたPull Request関連メールかを判定する。"""
+    if not email_data:
+        return False
+    _, sender_address = parseaddr(str(email_data.get("from") or ""))
+    sender_domain = sender_address.lower().rpartition("@")[2]
+    if sender_domain != "github.com":
+        return False
+    subject = str(email_data.get("subject") or "")
+    return bool(GITHUB_PR_SUBJECT_PATTERN.search(subject))
+
+
 def filter_classifications(
-    classifications_data: dict[str, Any], *, include_skip: bool
+    classifications_data: dict[str, Any],
+    *,
+    include_skip: bool,
+    email_index: dict[tuple[str, str], dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     classifications = classifications_data.get("classifications")
     if not isinstance(classifications, list):
@@ -46,11 +67,20 @@ def filter_classifications(
     categories = set(NOTIFY_CATEGORIES)
     if include_skip:
         categories.add("skip")
-    return [
-        item
-        for item in classifications
-        if isinstance(item, dict) and item.get("category") in categories
-    ]
+    filtered: list[dict[str, Any]] = []
+    for item in classifications:
+        if not isinstance(item, dict) or item.get("category") not in categories:
+            continue
+        key = (
+            str(item.get("account", "")),
+            str(item.get("gmail_message_id", "")),
+        )
+        if email_index is not None and is_github_pull_request_email(
+            email_index.get(key)
+        ):
+            continue
+        filtered.append(item)
+    return filtered
 
 
 def normalize_single_line(value: Any, *, max_length: int) -> str:

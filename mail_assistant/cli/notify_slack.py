@@ -66,16 +66,17 @@ def main() -> int:
         load_dotenv(DEFAULT_PATHS.root / ".env")
         classifications_data = load_json_object(args.classification)
         emails_data = load_json_object(args.emails)
+        email_index = build_email_index(emails_data)
         classifications = filter_classifications(
-            classifications_data, include_skip=args.include_skip
+            classifications_data,
+            include_skip=args.include_skip,
+            email_index=email_index,
         )
         if not classifications:
             print("Slack通知対象のメールはありません。")
             return 0
 
-        notification_text = build_notification_text(
-            classifications, build_email_index(emails_data)
-        )
+        notification_text = build_notification_text(classifications, email_index)
         notification_hash = calculate_notification_hash(classifications)
         if not args.force and notification_hash == load_last_notification_hash(
             args.state
