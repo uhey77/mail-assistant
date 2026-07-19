@@ -33,6 +33,39 @@ def test_filter_classifications_excludes_skip_by_default():
     assert len(filter_classifications(data, include_skip=True)) == 2
 
 
+def test_filter_classifications_excludes_github_pull_request_email():
+    github_pr = CLASSIFICATION
+    non_github_pr = {**CLASSIFICATION, "gmail_message_id": "m2"}
+    data = {"classifications": [github_pr, non_github_pr]}
+    email_index = build_email_index(
+        {
+            "emails": [
+                {
+                    "gmail_message_id": "m1",
+                    "account": "personal",
+                    "subject": (
+                        "Re: [neoAI-inc/neo-smart-chat] Production リリース "
+                        "2026-07-14 10:15:57 +0000 (PR #11891)"
+                    ),
+                    "from": "GitHub <notifications@github.com>",
+                },
+                {
+                    "gmail_message_id": "m2",
+                    "account": "personal",
+                    "subject": "Pull requestについて #42",
+                    "from": "担当者 <person@example.com>",
+                },
+            ]
+        }
+    )
+
+    assert filter_classifications(
+        data,
+        include_skip=False,
+        email_index=email_index,
+    ) == [non_github_pr]
+
+
 def test_build_notification_text_joins_email_metadata():
     emails = {
         "emails": [
