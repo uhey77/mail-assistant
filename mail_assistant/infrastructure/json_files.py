@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from mail_assistant.json_io import load_json_object, write_json_object
 from mail_assistant.model_base import FrozenArbitraryModel, FrozenModel
@@ -13,10 +13,8 @@ from mail_assistant.notifications import (
     save_notification_state,
 )
 
-T = TypeVar("T")
 
-
-class JsonFileRepository(FrozenArbitraryModel, Generic[T]):
+class JsonFileRepository[T](FrozenArbitraryModel):
     path: Path
     decoder: Callable[[dict[str, Any]], T]
     encoder: Callable[[T], dict[str, Any]]

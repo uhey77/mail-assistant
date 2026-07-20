@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any
 
 type JsonObject = dict[str, Any]
-T = TypeVar("T")
 
 
 def load_json_object(path: Path) -> JsonObject:
@@ -36,7 +35,7 @@ def write_json_object(path: Path, data: JsonObject) -> None:
     )
 
 
-def load_decoded_json_object(
+def load_decoded_json_object[T](
     path: Path,
     decoder: Callable[[JsonObject], T],
 ) -> T:
@@ -44,7 +43,7 @@ def load_decoded_json_object(
     return decoder(load_json_object(path))
 
 
-def write_encoded_json_object(
+def write_encoded_json_object[T](
     path: Path,
     value: T,
     encoder: Callable[[T], JsonObject],

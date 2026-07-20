@@ -238,7 +238,7 @@ class ClassificationBatch(FrozenModel):
             )
 
     def counts(self) -> dict[ClassificationCategory, int]:
-        counts = {category: 0 for category in ClassificationCategory}
+        counts = dict.fromkeys(ClassificationCategory, 0)
         for item in self.classifications:
             counts[item.category] += 1
         return counts
