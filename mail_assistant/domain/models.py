@@ -222,9 +222,7 @@ class ClassificationBatch(FrozenModel):
         )
 
     def to_mapping(self) -> dict[str, Any]:
-        return {
-            "classifications": [item.to_mapping() for item in self.classifications]
-        }
+        return {"classifications": [item.to_mapping() for item in self.classifications]}
 
     def ensure_matches(self, emails: Sequence[Mapping[str, object]]) -> None:
         expected = [

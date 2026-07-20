@@ -24,7 +24,6 @@ class Pipeline:
     def execute(self) -> PipelineReport:
         return PipelineReport(
             steps=tuple(
-                StepResult(name=step.name, value=step.execute())
-                for step in self._steps
+                StepResult(name=step.name, value=step.execute()) for step in self._steps
             )
         )
