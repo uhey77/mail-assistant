@@ -3,15 +3,20 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from collections.abc import Mapping
 from pathlib import Path
+
+from pydantic import BaseModel
+
+from mail_assistant.model_base import FrozenModel
 
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
 
 
-def resolve_project_root() -> Path:
+def resolve_project_root(env: Mapping[str, str] | None = None) -> Path:
     """環境変数があれば実行データの基準ディレクトリとして採用する。"""
-    configured_root = os.getenv("MAIL_ASSISTANT_HOME")
+    source = os.environ if env is None else env
+    configured_root = source.get("MAIL_ASSISTANT_HOME")
     if configured_root:
         return Path(configured_root).expanduser().resolve()
     return SOURCE_ROOT
@@ -28,11 +33,13 @@ ACCOUNT_NAMES = (
 )
 
 
-@dataclass(frozen=True, slots=True)
-class AppPaths:
+class AppPaths(FrozenModel):
     """プロジェクト内のファイル配置を一元管理する。"""
 
     root: Path
+
+    def __init__(self, root: Path | str) -> None:
+        BaseModel.__init__(self, root=root)
 
     @property
     def credentials(self) -> Path:
@@ -97,3 +104,17 @@ class AppPaths:
 
 
 DEFAULT_PATHS = AppPaths(PROJECT_ROOT)
+
+
+class AppConfig(FrozenModel):
+    """実行時設定。グローバル環境をアプリケーション層から分離する。"""
+
+    paths: AppPaths
+    account_names: tuple[str, ...] = ACCOUNT_NAMES
+
+    @classmethod
+    def from_env(cls, env: Mapping[str, str] | None = None) -> AppConfig:
+        return cls(paths=AppPaths(resolve_project_root(env)))
+
+
+DEFAULT_CONFIG = AppConfig(paths=DEFAULT_PATHS)

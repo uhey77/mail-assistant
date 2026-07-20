@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any
 
 import requests
+
+from mail_assistant.model_base import FrozenModel
 
 
 class SlackServiceError(RuntimeError):
     """Slackへの通知に失敗した場合の例外。"""
 
 
-@dataclass(frozen=True, slots=True)
-class SlackResponse:
+class SlackResponse(FrozenModel):
     status_code: int
     response_text: str
 

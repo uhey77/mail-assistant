@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -32,3 +33,20 @@ def write_json_object(path: Path, data: JsonObject) -> None:
         json.dumps(data, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+
+
+def load_decoded_json_object[T](
+    path: Path,
+    decoder: Callable[[JsonObject], T],
+) -> T:
+    """JSONオブジェクトを読み、境界で型付きオブジェクトへ変換する。"""
+    return decoder(load_json_object(path))
+
+
+def write_encoded_json_object[T](
+    path: Path,
+    value: T,
+    encoder: Callable[[T], JsonObject],
+) -> None:
+    """型付きオブジェクトを境界でJSONへ変換して保存する。"""
+    write_json_object(path, encoder(value))

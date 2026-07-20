@@ -1,6 +1,6 @@
-"""メール取得・分類・通知パイプラインの公開API。"""
+"""外部サービスに依存しないドメイン型。"""
 
-from mail_assistant.domain import (
+from mail_assistant.domain.models import (
     AccountName,
     ClassificationBatch,
     ClassificationCategory,
@@ -8,14 +8,9 @@ from mail_assistant.domain import (
     Email,
     EmailClassification,
 )
-from mail_assistant.settings import DEFAULT_CONFIG, DEFAULT_PATHS, AppConfig, AppPaths
 
 __all__ = [
-    "DEFAULT_CONFIG",
-    "DEFAULT_PATHS",
     "AccountName",
-    "AppConfig",
-    "AppPaths",
     "ClassificationBatch",
     "ClassificationCategory",
     "ClassificationPriority",

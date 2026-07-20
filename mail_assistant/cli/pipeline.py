@@ -51,14 +51,23 @@ def main() -> int:
 
         try:
             log("メール処理を開始します。")
-            run_command([sys.executable, "fetch_email_bodies.py", "--max-total", "10"])
+            run_command(
+                [
+                    sys.executable,
+                    "-m",
+                    "mail_assistant",
+                    "fetch-bodies",
+                    "--max-total",
+                    "10",
+                ]
+            )
             email_count = get_selected_email_count()
             if email_count == 0:
                 log("新しい未処理メールはありません。")
                 return 0
             log(f"未処理メール数: {email_count}件")
-            run_command([sys.executable, "classify_with_codex.py"])
-            run_command([sys.executable, "notify_slack.py"])
+            run_command([sys.executable, "-m", "mail_assistant", "classify"])
+            run_command([sys.executable, "-m", "mail_assistant", "notify"])
             log("メール処理が正常に完了しました。")
             return 0
         except Exception as exc:

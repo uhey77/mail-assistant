@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -123,7 +123,7 @@ def main() -> int:
 
         all_emails.sort(key=lambda item: str(item["received_at_utc"]), reverse=True)
         selected_emails = all_emails[: args.max_total]
-        selected_counts = {account: 0 for account in DEFAULT_PATHS.account_tokens()}
+        selected_counts = dict.fromkeys(DEFAULT_PATHS.account_tokens(), 0)
         for email_data in selected_emails:
             selected_counts[str(email_data["account"])] += 1
         for summary in account_summaries:

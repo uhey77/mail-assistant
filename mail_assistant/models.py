@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Literal, NotRequired, TypedDict
 
+type AccountName = Literal["personal", "university", "job"]
 type Category = Literal["reply", "action", "see", "skip"]
 type Priority = Literal["high", "medium", "low"]
 
@@ -11,7 +12,7 @@ type Priority = Literal["high", "medium", "low"]
 EmailData = TypedDict(
     "EmailData",
     {
-        "account": str,
+        "account": AccountName,
         "account_email": str,
         "gmail_message_id": str,
         "gmail_thread_id": str | None,
@@ -28,13 +29,18 @@ EmailData = TypedDict(
         "body": NotRequired[str],
         "body_source": NotRequired[str],
         "body_length": NotRequired[int],
+        "body_truncated": NotRequired[bool],
+        "header_date": NotRequired[str],
+        "message_id_header": NotRequired[str],
+        "in_reply_to": NotRequired[str],
+        "references": NotRequired[str],
     },
 )
 
 
 class ClassificationData(TypedDict):
     gmail_message_id: str
-    account: str
+    account: AccountName
     category: Category
     priority: Priority
     deadline: str | None
@@ -42,3 +48,11 @@ class ClassificationData(TypedDict):
     required_action: str | None
     reason: str
     needs_review: bool
+
+
+class EmailBatchData(TypedDict):
+    emails: list[EmailData]
+
+
+class ClassificationBatchData(TypedDict):
+    classifications: list[ClassificationData]
