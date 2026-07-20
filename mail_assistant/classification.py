@@ -3,21 +3,26 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from mail_assistant.clients.codex import CodexRunResult
+from mail_assistant.model_base import FrozenModel
+
+
+class JsonRunResult(Protocol):
+    """特定プロバイダーに依存しない構造化出力。"""
+
+    @property
+    def data(self) -> dict[str, Any]: ...
 
 
 class JsonRunner(Protocol):
     """構造化出力を返す分類プロバイダーの最小インターフェース。"""
 
-    def run_json(self, *, prompt: str, schema_path: Path) -> CodexRunResult: ...
+    def run_json(self, *, prompt: str, schema_path: Path) -> JsonRunResult: ...
 
 
-@dataclass(frozen=True, slots=True)
-class ClassificationResult:
+class ClassificationResult(FrozenModel):
     data: dict[str, Any]
     input_emails: list[dict[str, Any]]
 

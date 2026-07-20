@@ -6,17 +6,17 @@ import json
 import shutil
 import subprocess
 import tempfile
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from mail_assistant.model_base import FrozenModel
 
 
 class CodexRunnerError(RuntimeError):
     """Codex CLIの実行または出力処理に失敗した場合の例外。"""
 
 
-@dataclass(frozen=True, slots=True)
-class CodexRunResult:
+class CodexRunResult(FrozenModel):
     data: dict[str, Any]
     stdout: str
     stderr: str
