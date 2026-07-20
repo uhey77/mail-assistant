@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib
 import sys
 from collections.abc import Sequence
+from typing import TextIO
 
 from mail_assistant.model_base import FrozenModel
 
@@ -46,7 +47,7 @@ COMMANDS: dict[str, Command] = {
 }
 
 
-def _print_help(*, stream: object = sys.stdout) -> None:
+def _print_help(*, stream: TextIO = sys.stdout) -> None:
     print("usage: mail-assistant <command> [options]", file=stream)
     print("", file=stream)
     print("commands:", file=stream)

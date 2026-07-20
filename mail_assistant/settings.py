@@ -6,6 +6,8 @@ import os
 from collections.abc import Mapping
 from pathlib import Path
 
+from pydantic import BaseModel
+
 from mail_assistant.model_base import FrozenModel
 
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
@@ -37,7 +39,7 @@ class AppPaths(FrozenModel):
     root: Path
 
     def __init__(self, root: Path | str) -> None:
-        super().__init__(root=root)
+        BaseModel.__init__(self, root=root)
 
     @property
     def credentials(self) -> Path:

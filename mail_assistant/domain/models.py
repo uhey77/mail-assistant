@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from enum import StrEnum
-from typing import Any, Self
+from typing import Any, Self, cast
 
 from pydantic import StrictBool, StrictInt
 
@@ -87,10 +87,13 @@ class Email(FrozenModel):
     @classmethod
     def from_mapping(cls, data: Mapping[str, object]) -> Self:
         labels_value = data.get("labels", [])
-        if not isinstance(labels_value, list) or not all(
-            isinstance(label, str) for label in labels_value
-        ):
+        if not isinstance(labels_value, list):
             raise TypeError("labelsは文字列配列で指定してください。")
+        labels: list[str] = []
+        for label in labels_value:
+            if not isinstance(label, str):
+                raise TypeError("labelsは文字列配列で指定してください。")
+            labels.append(label)
 
         thread_id = data.get("gmail_thread_id")
         if thread_id is not None and not isinstance(thread_id, str):
@@ -114,7 +117,7 @@ class Email(FrozenModel):
             snippet=_text(data, "snippet"),
             is_unread=_boolean(data, "is_unread"),
             is_inbox=_boolean(data, "is_inbox"),
-            labels=tuple(labels_value),
+            labels=tuple(labels),
             cc=_text(data, "cc"),
             reply_to=_text(data, "reply_to"),
             body=_text(data, "body"),
@@ -205,11 +208,16 @@ class ClassificationBatch(FrozenModel):
         raw_items = data.get("classifications")
         if not isinstance(raw_items, list):
             raise ValueError("classifications配列がありません。")
-        if not all(isinstance(item, dict) for item in raw_items):
-            raise TypeError("classificationsにはオブジェクトだけを指定してください。")
+        validated_items: list[Mapping[str, object]] = []
+        for item in raw_items:
+            if not isinstance(item, dict):
+                raise TypeError(
+                    "classificationsにはオブジェクトだけを指定してください。"
+                )
+            validated_items.append(cast(Mapping[str, object], item))
         return cls(
             classifications=tuple(
-                EmailClassification.from_mapping(item) for item in raw_items
+                EmailClassification.from_mapping(item) for item in validated_items
             )
         )
 
